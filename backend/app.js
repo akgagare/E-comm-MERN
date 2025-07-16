@@ -7,6 +7,7 @@ const multer  = require('multer');
 const bcrypt = require('bcrypt');
 const upload = multer();
 const path = require('path');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 dotenv.config();
 connectDB();
@@ -18,6 +19,27 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.get('/',(req,res)=>{
     res.send("Hello Sound");
+});
+app.post('/api/gemini', async (req, res) => {
+  try {
+    const { content } = req.body;
+
+   
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+
+    
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+
+    
+    const result = await model.generateContent(content);
+    const response = await result.response;
+    const text = await response.text();
+
+    res.json({ message: 'Success', result: text });
+  } catch (err) {
+    console.error('Gemini error:', err);
+    res.status(500).json({ error: 'Gemini API failed' });
+  }
 });
 
 const userRoutes = require('./routes/user');
