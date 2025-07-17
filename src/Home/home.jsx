@@ -6,8 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {GoogleGenerativeAI} from '@google/generative-ai'
 
 const Home = () => {
-  const navigate = useNavigate();
-  
+
   const [content,setContent] = useState("");
   const [geminiRes,setGeminiRes] = useState("");
 
