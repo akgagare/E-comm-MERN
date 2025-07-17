@@ -30,12 +30,6 @@ const LoginUser = () => {
           role:user.role,
           token: token,
         });
-        // localStorage.setItem('token', JSON.stringify({
-        //   token: user.token,
-        //   name: user.name,
-        //   id: user._id,
-        //   role: user.role // 👈 make sure this exists
-        // }));
         navigate(`/user/${user._id}`);
       } else {
         alert('You are not registered to this service');
