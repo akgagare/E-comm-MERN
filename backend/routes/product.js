@@ -5,6 +5,7 @@ const path = require("path");
 const authMiddleware = require('../middleware/authMiddleware');
 const productController = require('../controllers/product');
 const Product = require("../models/product");
+const verifyRole = require('../middleware/roleMiddleware');
 // Setup Multer for file uploads
 
 
@@ -18,7 +19,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.post("/", upload.single("photos"), async (req, res) => {
+router.post("/",authMiddleware,verifyRole("admin"), upload.single("photos"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -36,8 +37,8 @@ router.post("/", upload.single("photos"), async (req, res) => {
 });
 
 router.get('/', authMiddleware, productController.getProduct);
-router.get('/:id', productController.getProductById);
-router.put('/:id', productController.updateProduct);
-router.delete('/:pid', productController.deleteProduct);
+router.get('/:id', authMiddleware,productController.getProductById);
+router.put('/:id',authMiddleware,verifyRole("admin"),productController.updateProduct);
+router.delete('/:pid/:userId',authMiddleware,verifyRole("admin"), productController.deleteProduct);
 
 module.exports = router;

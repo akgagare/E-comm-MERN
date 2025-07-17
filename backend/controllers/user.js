@@ -6,24 +6,16 @@ const bcrypt = require('bcrypt');
 // Create a new user
 exports.createUser = async (req, res) => {
   try {
-    const { name, email, password, role, address, phone, isActive } = req.body;
+    const { name, email, password, role} = req.body;
 
     const hash    = await bcrypt.hash(password, 10);
     const userDoc = await User.create({
       name,
       email,
       password: hash,
-      role,
-      address,
-      phone,
-      isActive,
+      role:"user",
     });
-
-    const token = jwt.sign({ user_id: userDoc._id }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
-    });
-
-    return res.status(201).json({ token });    
+    return res.status(201).json({ userDoc });    
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: error.message });
@@ -52,7 +44,7 @@ exports.loginUser = async (req, res) => {
 
     // Sign JWT
     const token = jwt.sign(
-      { user_id: user._id },
+      { user_id: user._id , role:user.role},
       process.env.JWT_SECRET,          
       { expiresIn: '1d' }
     );

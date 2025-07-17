@@ -4,33 +4,42 @@ const Product = require('../models/product');
 
 exports.createOrder = async (req, res) => {
   try {
-    const customerId = req.user.id;
-    console.log("userId",customerId);
     const { productId } = req.body;
+    const customerId = req.user.id;
 
-    console.log("Pid",productId);
+    if (!customerId || !productId) {
+      return res.status(400).json({ message: "ProductId or CustomerId missing" });
+    }
 
     const user = await User.findById(customerId);
     const product = await Product.findById(productId);
 
-    if(!user){
-      res.status(501).json("UserId not found");
-    }
-    if(!product){
-      res.status(501).json("ProductId not found");
-    }
-    const order = await Order.create({
-      customerId,
-      productId
-    });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
-    res.status(201).json({message:"Order created successfully",order});
+    
+    let order = await Order.findOne({ productId, customerId });
+
+    if (order) {
+      
+      order.quantity += 1;
+      await order.save();
+    } else {
+      
+      order = await Order.create({
+        customerId,
+        productId,
+        quantity: 1, 
+      });
+    }
+
+    res.status(201).json({ message: "Order created successfully", order });
+
   } catch (err) {
-    console.error("createOrder ➜", err);
+    console.error("createOrder", err);
     res.status(500).json({ message: "Could not create order" });
   }
 };
-
 
 exports.getOrders = async (_, res) => {
   try {
@@ -42,7 +51,7 @@ exports.getOrders = async (_, res) => {
   }
 };
 
-// ▸ GET /api/orders/:id  – fetch a single order
+
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -78,7 +87,7 @@ exports.deleteOrder = async (req, res) => {
   try {
     const order = await Order.findByIdAndDelete(req.params.id);
     if (!order) return res.status(404).json({ message: "Order not found" });
-    res.json({ message: "Order deleted successfully" });
+    res.status(200).json({ message: "Order deleted successfully" });
   } catch (err) {
     console.error("deleteOrder ➜", err);
     res.status(500).json({ message: "Could not delete order" });
@@ -96,9 +105,9 @@ exports.getOrderByUserId = async (req, res) => {
 
     console.log("orders",orders);
     if (!orders.length) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "No orders found for this customer",
-        data: [],
+        data: [], 
       });
     }
     return res.status(200).json({

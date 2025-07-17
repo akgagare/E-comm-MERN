@@ -4,7 +4,7 @@ const {getUsers,loginUser,createUser,getUserById,updateUser,deleteUser} = requir
 
 const router = express.Router();
 
-router.post("/", createUser);
+router.post("/register", createUser);
 router.post('/login',loginUser);
 router.get("/", getUsers);
 router.get("/:id", getUserById);

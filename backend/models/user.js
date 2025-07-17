@@ -18,25 +18,10 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'seller'],
+    enum: ['user', 'admin'],
     default: 'user',
   },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zip: String,
-    country: String,
-  },
-
-  phone: {
-    type: String,
-  },
-
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
+  
   createdAt: {
     type: Date,
     default: Date.now,
